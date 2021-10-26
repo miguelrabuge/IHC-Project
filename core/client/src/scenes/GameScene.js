@@ -1,15 +1,22 @@
 import swordImg from '../assets/sprites/sword.png';
 import moveImg from '../assets/sprites/move.png';
-import { CTTS } from '../constants';
+
+import { CTTS } from "../constants";
+
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
-        super("GameScene")
+        super(CTTS.SCENES.GAMESCENE.NAME)
+    }
+
+    init(data) {
+        this.player = data.player;
+        this.worldSize = data.worldSize;
+        console.log(data.worldSize)
+        this.nextMove = "None";
     }
 
     preload() {
-        console.log("Hey GameScene")
-
         this.load.image(CTTS.SPRITES.SWORD, swordImg);
         this.load.image(CTTS.SPRITES.MOVE, moveImg);
 
@@ -57,8 +64,10 @@ export default class GameScene extends Phaser.Scene {
             CTTS.SCENES.GAMESCENE.SCREEN.HEIGHT,
             0x00ff00
         )
-        
-        /* Actions */
+        //TODO: Remove this var
+        this.local = this.add.text(CTTS.CANVAS.WIDTH/2,100, `(${this.player.x}, ${this.player.y})`).setOrigin(0.5,0);
+
+        /* Actions */ //FIXME:
         this.add.sprite(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
             .setInteractive()
             .on('pointerover', () => {this.moveText.setText("Next Action: Share")});
@@ -104,10 +113,42 @@ export default class GameScene extends Phaser.Scene {
                 .setInteractive()
                 .on('pointerout',  () => CTTS.SPRITES.ANIMATION.SCALE(this.moveBtns[move].handle, 1.00))
                 .on('pointerover', () => {
-                        CTTS.SPRITES.ANIMATION.SCALE(this.moveBtns[move].handle, 0.95);
+                        CTTS.SPRITES.ANIMATION.SCALE(this.moveBtns[move].handle, 0.94);
                         this.moveText.setText("Next Action: Move " + move);
+                        this.nextMove = move;  
                     }
                 );
         }
+        // Update server with player intentions every gametick
+        this.player.socket.on("gametick", (info) => {
+            this.player.socket.emit("clientInfo", 
+                {
+                    action: this.nextMove
+                }, 
+                (newData) => {
+                    this.player.x = newData.x
+                    this.player.y = newData.y
+                }
+            );
+            this.nextMove = "None";
+        })
     }
-}
+    update() {
+        this.local.setText(`(${this.player.x}, ${this.player.y})`)
+        this.moveText.setText("Next Action: " + this.nextMove);
+        this.player.x == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["right"].handle) : this.activateComponent(this.moveBtns["right"].handle);
+        this.player.y == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["down"].handle) : this.activateComponent(this.moveBtns["down"].handle);
+        this.player.x == 0 ? this.deactivateComponent(this.moveBtns["left"].handle) : this.activateComponent(this.moveBtns["left"].handle);
+        this.player.y == 0 ? this.deactivateComponent(this.moveBtns["up"].handle) : this.activateComponent(this.moveBtns["up"].handle);
+    }
+
+    activateComponent(component) {
+        component.alpha = 1;
+        component.setInteractive()
+    }
+
+    deactivateComponent(component) {
+        component.alpha = 0.5;
+        component.disableInteractive();
+    }
+ }
