@@ -22,16 +22,21 @@ export default class IntroScene extends Phaser.Scene {
             this.socket = io('http://' + CTTS.SERVER.IP + ':' + CTTS.SERVER.PORT, { transports : ['websocket'] });
             // Connect to Server
             this.socket.on('connect', () => {
+                console.log("Connected to Server on : " + "http://" + CTTS.SERVER.IP + ":" + CTTS.SERVER.PORT)
                 // Get player initial (randomized) information
-                this.socket.emit("InitializeInfo", (info) => {
+                this.socket.emit("InitializeInfo", (data) => {
                     // Create the Player
-                    this.player = new Player(info.x, info.y, this.socket);
+                    this.player = new Player(data.player.x, data.player.y, data.player.lifePoints, this.socket);
                     // Switch to GameScene
                     var config = {
                         target: CTTS.SCENES.GAMESCENE.NAME,
                         duration: 0,
                         onUpdate: (progress) => CTTS.SCENES.TRANSITION.ANIMATION.FADE(progress, this.playBtn),
-                        data: {player: this.player, worldSize: info.worldSize},
+                        data: {
+                            player: this.player, 
+                            worldSize: data.worldSize,
+                            maxCellLP: data.maxCellLP
+                        },
                         moveBelow: true,
                     };
                     this.scene.transition(config);
