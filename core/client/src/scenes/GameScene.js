@@ -180,11 +180,9 @@ export default class GameScene extends Phaser.Scene {
             var config = {
                 target: "ScoreScene",
                 duration: 0,
-                onUpdate: (progress) => {},
                 moveBelow: true,
             };
-    this.scene.transition(config);
-            
+            this.scene.transition(config);
         })
     }
 

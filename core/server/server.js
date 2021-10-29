@@ -5,7 +5,7 @@ const io = require('socket.io')(http);
 
 /* Configs */ 
 TICK_LIMIT = 100
-GAMETICK = 50
+GAMETICK = 20
 WORLDSIZE = 5
 LP = 100
 MAX_PLAYERS = 30
@@ -86,7 +86,6 @@ io.on('connection', (socket) => {
                     players[socket.id].lifePoints += world.map[players[socket.id].y][players[socket.id].x]
                     world.map[players[socket.id].y][players[socket.id].x] = 0 
                 } 
-                console.log(data)
                 // Get Local World
                 var localWorld = getLocalWorld(players[socket.id].x, players[socket.id].y, seed);
                 
@@ -104,21 +103,23 @@ io.on('connection', (socket) => {
     
 http.listen(3000, function () {
     console.log("Server started!");
-    var round = 0
+
+    var round = 0, newRound = true;
+
     // Round Function
     var gameRound = function () {
         console.log("Round [" + round + "] Started");
-        seedWorld()
+        seedWorld();
         rebooting = false;
-        var tickCounter = 0
+        var tickCounter = 0;
         var tickInterval = setInterval(() => {
-            console.log(tickCounter++);
-            if (tickCounter == TICK_LIMIT) {
+            if (++tickCounter == TICK_LIMIT) {
                 rebooting = true;
-                clearInterval(tickInterval); // End Round
+                clearInterval(tickInterval);
                 world = { map: [] }
                 players = {}
                 io.emit("RoundEnded")
+                newRound = true
                 console.log("Round [" + round++ + "] Ended")
             } else {
                 if (tickCounter % 10 == 0) {
@@ -130,7 +131,11 @@ http.listen(3000, function () {
     }
 
     // Round loop
-    gameRound()
-    setInterval(gameRound, TICK_LIMIT * GAMETICK + 2000)
+    setInterval(() => {
+        if (newRound) {
+            newRound = false;
+            setTimeout(gameRound, 5000)
+        }
+    }, GAMETICK);
 });
 

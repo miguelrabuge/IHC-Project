@@ -4,7 +4,7 @@ export const CTTS = {
         HEIGHT: 64*2*5
     },
     SERVER: {
-        IP: "192.168.8.139",
+        IP: "192.168.1.9",
         PORT: "3000"
     },
     SPRITES: {
