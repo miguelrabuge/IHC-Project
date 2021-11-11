@@ -17,7 +17,7 @@ export default class IntroScene extends Phaser.Scene {
         // Play Button
         this.playBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2, CTTS.SPRITES.PLAYBUTTON).setInteractive()
         // Event: On Play Button Click
-        this.playBtn.on('pointerdown', () => {
+        this.playBtn.on('pointerover', () => {
             // Create Websocket
             this.socket = io('http://' + CTTS.SERVER.IP + ':' + CTTS.SERVER.PORT, { transports : ['websocket'] });
             // Connect to Server
@@ -26,7 +26,7 @@ export default class IntroScene extends Phaser.Scene {
                 // Get player initial (randomized) information
                 this.socket.emit("InitializeInfo", (data) => {
                     // Create the Player
-                    this.player = new Player(data.player.x, data.player.y, data.player.lifePoints, this.socket);
+                    this.player = new Player(data.player.x, data.player.y, data.player.lifePoints, data.player.xp, this.socket);
                     // Switch to GameScene
                     var config = {
                         target: CTTS.SCENES.GAMESCENE.NAME,

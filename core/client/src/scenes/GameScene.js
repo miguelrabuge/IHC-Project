@@ -1,6 +1,11 @@
 import swordImg from '../assets/sprites/sword.png';
 import moveImg from '../assets/sprites/move.png';
 import scytheImg from '../assets/sprites/scythe.png';
+import saveImg from '../assets/sprites/save.png'
+import sowImg from '../assets/sprites/sow.png'
+import heartImg from '../assets/sprites/heart.png';
+import xpImg from '../assets/sprites/XP.png'
+import playerStancesImg from '../assets/sprites/playersheet.png'
 import { CTTS } from "../constants";
 
 
@@ -29,39 +34,76 @@ export default class GameScene extends Phaser.Scene {
         this.load.image(CTTS.SPRITES.SWORD, swordImg);
         this.load.image(CTTS.SPRITES.MOVE, moveImg);
         this.load.image(CTTS.SPRITES.SCYTHE, scytheImg);
+        this.load.image(CTTS.SPRITES.SOW, sowImg)
+        this.load.image(CTTS.SPRITES.SAVE, saveImg)
+        this.load.image(CTTS.SPRITES.HEART, heartImg)
+        this.load.image(CTTS.SPRITES.XP, xpImg)
+        this.load.spritesheet(CTTS.SPRITES.PLAYER, playerStancesImg, {
+            frameHeight: 64,
+            frameWidth: 64
+        })
+
         this.moveBtns = {
             up : {
                 x: 16 + 64 + 14, 
-                y: CTTS.CANVAS.WIDTH/2 + CTTS.SCENES.GAMESCENE.SCREEN.WIDTH/2 + 32,
+                y: CTTS.CANVAS.HEIGHT/2 + CTTS.SCENES.GAMESCENE.SCREEN.HEIGHT/2 + 32,
                 angle: 0,
                 flipX: false, 
-                handle : null
-            },
-            left : {
-                x: 16 + 32,
-                y: CTTS.CANVAS.WIDTH/2 + CTTS.SCENES.GAMESCENE.SCREEN.WIDTH/2 + 32 + 48,
-                angle: -90,
-                flipX: true,
-                handle : null
+                handle : null,
+                frame: 0
             },
             down : {
                 x: 16 + 64 + 14,
-                y: CTTS.CANVAS.WIDTH/2 + CTTS.SCENES.GAMESCENE.SCREEN.WIDTH/2 + 32 + 64 + 32,
+                y: CTTS.CANVAS.HEIGHT/2 + CTTS.SCENES.GAMESCENE.SCREEN.HEIGHT/2 + 32 + 64 + 32,
                 angle: 180,
                 flipX: true,
-                handle : null
+                handle : null,
+                frame: 1
             },
             right: {
                 x: 16 + 32 + 64 + 14*2,
-                y: CTTS.CANVAS.WIDTH/2 + CTTS.SCENES.GAMESCENE.SCREEN.WIDTH/2 + 32 + 48,
+                y: CTTS.CANVAS.HEIGHT/2 + CTTS.SCENES.GAMESCENE.SCREEN.HEIGHT/2 + 32 + 48,
                 angle: 90,
                 flipX: false,
-                handle : null
+                handle : null,
+                frame: 2
+            },
+            left : {
+                x: 16 + 32,
+                y: CTTS.CANVAS.HEIGHT/2 + CTTS.SCENES.GAMESCENE.SCREEN.HEIGHT/2 + 32 + 48,
+                angle: -90,
+                flipX: true,
+                handle : null,
+                frame: 3
+            }
+        }
+
+        this.actionBtns = {
+            harvest: {
+                x: CTTS.CANVAS.WIDTH/2 - 32 +64 +16,
+                y: CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16,
+                sprite: CTTS.SPRITES.SCYTHE,
+                labelHandler: null,
+                spriteHandler: null
+            },
+            sow: {
+                x: CTTS.CANVAS.WIDTH/2 + 32 + 16 +64 +16, 
+                y: CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16,
+                sprite: CTTS.SPRITES.SOW,
+                labelHandler: null,
+                spriteHandler: null
+            },
+            save: {
+                x: CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 +64 +16, 
+                y: CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16,
+                sprite: CTTS.SPRITES.SAVE,
+                labelHandler: null,
+                spriteHandler: null
             }
         }
     }
 
-    colors(cell) {
+    colors(cell) { 
         var range = [0xffff00, 0xefff00, 0xdfff00, 0xcfff00, 0xbfff00, 0xafff00, 0x9fff00, 0x8fff00, 0x7fff00, 0x6fff00, 0x00ff00]
         if (cell == -1)
             return CTTS.COLORS.BLACK
@@ -73,11 +115,19 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
         // Control Text
-        this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,0, "Next Action: None").setOrigin(0.5,0);
+        this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,CTTS.CANVAS.HEIGHT*0.65, "Next Action: None").setOrigin(0.5,0);
         //TODO: Remove this var
-        this.local = this.add.text(CTTS.CANVAS.WIDTH - 20*6, 0, `(${this.player.x}, ${this.player.y})`).setOrigin(0.5,0);
-        this.local.depth = 20;
-        this.lpText = this.add.text(0,0,this.player.lifePoints, {color: "#ff0000"});
+        this.local = this.add.text(CTTS.CANVAS.WIDTH - 20*6, CTTS.CANVAS.HEIGHT*0.65, `(${this.player.x}, ${this.player.y})`).setOrigin(0.5,0);
+        
+        // Lifepoints Sprite and Label
+        this.lpSprite = this.add.sprite(CTTS.CANVAS.WIDTH*0.2,5, CTTS.SPRITES.HEART).setOrigin(0,0).setScale(0.5);
+        this.lpText = this.add.text(CTTS.CANVAS.WIDTH*0.2 + 40,13,this.player.lifePoints, {color: "#00ff00"});
+
+        // XP Sprite and Label
+        this.xpSprite = this.add.sprite(CTTS.CANVAS.WIDTH*0.6, 5, CTTS.SPRITES.XP).setOrigin(0,0).setScale(0.5);
+        this.xpText = this.add.text(CTTS.CANVAS.WIDTH*0.6 + 40, 13, this.player.xp, {color: "#5fA0ff"})
+
+        
         // GameScreen
         this.gameScreen = {
             top: {
@@ -96,49 +146,45 @@ export default class GameScene extends Phaser.Scene {
                 right: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, 128, 128,0xffff00),
             }
         }
-
-
+        
+        // Player Sprite
+        this.playerSprite = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.PLAYER).setFrame(1);
+        
         /* Actions */ //FIXME:
-        this.add.sprite(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-            .setInteractive()
-            .on('pointerover', () => {this.moveText.setText("Next Action: Share")});
-        this.add.text(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Share").setOrigin(0.5,0.5)
+        // this.add.sprite(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
+        //     .setInteractive()
+        //     .on('pointerover', () => {this.moveText.setText("Next Action: Share")});
+        // this.add.text(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Share").setOrigin(0.5,0.5)
 
-        this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-            .setInteractive()
-            .on('pointerover', () => {this.moveText.setText("Next Action: Fight")});
-        this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Fight").setOrigin(0.5,0.5)
+        // this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
+        //     .setInteractive()
+        //     .on('pointerover', () => {this.moveText.setText("Next Action: Fight")});
+        // this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Fight").setOrigin(0.5,0.5)
 
-        this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-            .setInteractive()
-            .on('pointerover', () => {this.moveText.setText("Next Action: Flee")});
-        this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Flee").setOrigin(0.5,0.5)
+        // this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
+        //     .setInteractive()
+        //     .on('pointerover', () => {this.moveText.setText("Next Action: Flee")});
+        // this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Flee").setOrigin(0.5,0.5)
 
-        this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 + 64+16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-            .setInteractive()
-            .on('pointerover', () => {this.moveText.setText("Next Action: Steal")});
-        this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 + 64+16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Steal").setOrigin(0.5,0.5)
+        // this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 + 64+16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
+        //     .setInteractive()
+        //     .on('pointerover', () => {this.moveText.setText("Next Action: Steal")});
+        // this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 + 64+16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Steal").setOrigin(0.5,0.5)
         
-
-        this.add.sprite(CTTS.CANVAS.WIDTH/2 - 32 +64 +16, CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16, CTTS.SPRITES.SCYTHE)
-            .setInteractive()
-            .on('pointerover', () => {
-                this.nextMove = "harvest"
-            });
-        this.add.text(CTTS.CANVAS.WIDTH/2 - 32 +64 +16, CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16 + 48 , "Harvest").setOrigin(0.5,0.5)
-        
-        this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 +64 +16, CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16, CTTS.SPRITES.SWORD)
-            .setInteractive()
-            .on('pointerover', () => {
-                this.nextMove = "sow";
-            });
-        this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 +64 +16, CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16 + 48 , "Sow").setOrigin(0.5, 0.5)
-
-        this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 +64 +16, CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16, CTTS.SPRITES.SWORD)
-            .setInteractive()
-            .on('pointerover', () => {this.moveText.setText("Next Action: Save")});
-        this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 +64 +16, CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16 + 48 , "Save").setOrigin(0.5, 0.5)
-
+        /* Action Buttons */
+        for (const action in this.actionBtns) {
+            this.actionBtns[action].labelHandler = this.add.text(this.actionBtns[action].x,this.actionBtns[action].y + 48, action.charAt(0).toUpperCase() + action.slice(1))
+                .setOrigin(0.5, 0.5)
+            this.actionBtns[action].spriteHandler = this.add.sprite(this.actionBtns[action].x,this.actionBtns[action].y, this.actionBtns[action].sprite)
+                .setInteractive()
+                .on('pointerover', () => {
+                    this.nextMove = action
+                    this.actionBtns[action].spriteHandler.setScale(0.94)
+                })
+                .on('pointerout', () => {
+                    this.actionBtns[action].spriteHandler.setScale(1)
+                })
+        }
 
         /* Move Buttons */
         for (const move in this.moveBtns) {
@@ -146,11 +192,12 @@ export default class GameScene extends Phaser.Scene {
                 .setAngle(this.moveBtns[move].angle)
                 .setFlipX(this.moveBtns[move].flipX)
                 .setInteractive()
-                .on('pointerout',  () => CTTS.SPRITES.ANIMATION.SCALE(this.moveBtns[move].handle, 1))
+                .on('pointerout',  () => this.moveBtns[move].handle.setScale(1))
                 .on('pointerover', () => {
-                        CTTS.SPRITES.ANIMATION.SCALE(this.moveBtns[move].handle, 0.94);
+                        this.moveBtns[move].handle.setScale(0.94);
                         this.moveText.setText("Next Action: Move " + move);
-                        this.nextMove = move;  
+                        this.nextMove = move;
+                        this.playerSprite.setFrame(this.moveBtns[move].frame)
                     }
                 );
         }
@@ -165,9 +212,8 @@ export default class GameScene extends Phaser.Scene {
                     this.player.x = newData.player.x;
                     this.player.y = newData.player.y;
                     this.player.lifePoints = newData.player.lifePoints;
+                    this.player.xp = newData.player.xp;
                     this.localWorld = newData.localWorld;
-                    console.log(newData)
-
                 }
                 );
                 this.nextMove = "None";
@@ -192,6 +238,7 @@ export default class GameScene extends Phaser.Scene {
             this.local.setText(`(${this.player.x}, ${this.player.y})`)
             this.moveText.setText("Next Action: " + this.nextMove);
             this.lpText.setText(this.player.lifePoints);
+            this.xpText.setText(this.player.xp)
             
             // Activate/Deactivate Arrows
             this.player.x == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["right"].handle) : this.activateComponent(this.moveBtns["right"].handle);

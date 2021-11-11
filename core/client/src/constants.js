@@ -1,17 +1,22 @@
 export const CTTS = {
     CANVAS: {
-        WIDTH: 64*2*4,
-        HEIGHT: 64*2*5
+        WIDTH: 128*4,
+        HEIGHT: 128*6
     },
     SERVER: {
-        IP: "192.168.1.9",
+        IP: "localhost",
         PORT: "3000"
     },
     SPRITES: {
         PLAYBUTTON: 'play',
+        HEART: 'heart',
         SWORD: 'sword',
         MOVE: 'move',
         SCYTHE: 'scythe', 
+        SOW: 'sow',
+        SAVE: 'save',
+        XP: 'XP',
+        PLAYER: 'player',
         ANIMATION: {
             SCALE : (obj, scale) => {obj.setScale(scale)}
         }

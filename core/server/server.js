@@ -4,10 +4,10 @@ const http = require('http').createServer(server);
 const io = require('socket.io')(http);
 
 /* Configs */ 
-TICK_LIMIT = 100
+TICK_LIMIT = 10000
 GAMETICK = 20
 WORLDSIZE = 5
-LP = 100
+LP = 1000
 MAX_PLAYERS = 30
 
 
@@ -58,7 +58,8 @@ io.on('connection', (socket) => {
         players[socket.id] = {
             x: parseInt(WORLDSIZE * Math.random()),
             y: parseInt(WORLDSIZE * Math.random()),
-            lifePoints: LP
+            lifePoints: LP,
+            xp: 0
         }
         info({
             player: players[socket.id],
@@ -85,7 +86,10 @@ io.on('connection', (socket) => {
                 } else if (data.action == "harvest") {
                     players[socket.id].lifePoints += world.map[players[socket.id].y][players[socket.id].x]
                     world.map[players[socket.id].y][players[socket.id].x] = 0 
-                } 
+                } else if (data.action == "save") {
+                    players[socket.id].lifePoints = parseInt(players[socket.id].lifePoints * 0.5);
+                    players[socket.id].xp += players[socket.id].lifePoints
+                }
                 // Get Local World
                 var localWorld = getLocalWorld(players[socket.id].x, players[socket.id].y, seed);
                 
