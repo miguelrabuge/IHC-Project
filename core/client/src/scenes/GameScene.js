@@ -6,6 +6,7 @@ import sowImg from '../assets/sprites/sow.png'
 import heartImg from '../assets/sprites/heart.png';
 import xpImg from '../assets/sprites/XP.png'
 import playerStancesImg from '../assets/sprites/playersheet.png'
+import enemyStancesImg from '../assets/sprites/enemysheet.png'
 import { CTTS } from "../constants";
 
 
@@ -23,9 +24,8 @@ export default class GameScene extends Phaser.Scene {
     init(data) {
         this.player = data.player;
         this.worldSize = data.worldSize;
-        this.localWorld = [-1, -1, -1, -1, -1, -1, -1, -1, -1];
+        this.localWorld = [{lifePoints: -1}, {lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1}];
         this.maxCellLP = data.maxCellLP;
-        console.log(data.worldSize)
         this.nextMove = "None";
         this.stopUpdate = false
     }
@@ -39,6 +39,10 @@ export default class GameScene extends Phaser.Scene {
         this.load.image(CTTS.SPRITES.HEART, heartImg)
         this.load.image(CTTS.SPRITES.XP, xpImg)
         this.load.spritesheet(CTTS.SPRITES.PLAYER, playerStancesImg, {
+            frameHeight: 64,
+            frameWidth: 64
+        })
+        this.load.spritesheet(CTTS.SPRITES.ENEMY, enemyStancesImg, {
             frameHeight: 64,
             frameWidth: 64
         })
@@ -109,8 +113,8 @@ export default class GameScene extends Phaser.Scene {
             return CTTS.COLORS.BLACK
         if (cell == 0)
             return CTTS.COLORS.WHITE
-        var cellNormalized = 100*cell/this.maxCellLP;
-        return range[(cellNormalized - cellNormalized%10) / 10]
+        var cellNormalized = 100 * cell / this.maxCellLP;
+        return range[(cellNormalized - cellNormalized % 10) / 10]
     }
 
     create() {
@@ -131,22 +135,53 @@ export default class GameScene extends Phaser.Scene {
         // GameScreen
         this.gameScreen = {
             top: {
-                left: this.add.rectangle(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, 128, 128, 0xff0000),
-                middle: this.add.rectangle(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, 128, 128, 0x00ff00),
-                right: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, 128, 128,0xffff00),
+                left: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, 128, 128, 0xff0000),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
+                middle: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, 128, 128, 0x00ff00),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
+                right: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, 128, 128,0xffff00),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35 - 128 - 1, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
             },
             middle: {
-                left: this.add.rectangle(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35, 128, 128, 0xff0000),
-                middle: this.add.rectangle(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, 128, 128, 0x00ff00),
-                right: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35, 128, 128,0xffff00),
+                left: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35, 128, 128, 0xff0000),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
+                middle: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, 128, 128, 0x00ff00),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
+                right: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35, 128, 128,0xffff00),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
             },
             bottom: {
-                left: this.add.rectangle(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, 128, 128, 0xff0000),
-                middle: this.add.rectangle(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, 128, 128, 0x00ff00),
-                right: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, 128, 128,0xffff00),
+                left: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, 128, 128, 0xff0000),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2 - 128 - 1, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
+                middle: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, 128, 128, 0x00ff00),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
+                right: {
+                    rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, 128, 128,0xffff00),
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35 + 128 + 1, CTTS.SPRITES.ENEMY).setFrame(1)
+                },
             }
         }
-        
+        for (const row in this.gameScreen) {
+            for (const tile in this.gameScreen[row]) {
+                this.gameScreen[row][tile].enemy.visible = false;
+            }
+        }
         // Player Sprite
         this.playerSprite = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.PLAYER).setFrame(1);
         
@@ -203,24 +238,24 @@ export default class GameScene extends Phaser.Scene {
         }
         // Update server with player intentions every gametick
         this.player.socket.on("gametick", () => {
-                this.player.socket.emit("clientInfo", {action: this.nextMove});
+                this.player.socket.emit("client-info", {action: this.nextMove});
                 this.nextMove = "None";
             }
         );
 
-        this.player.socket.on("tickUpdate", () => {
-                this.player.socket.emit("getTickUpdate", (data) => {
+        this.player.socket.on("tick-update", () => {
+                this.player.socket.emit("get-tick-update", (data) => {
+                        this.localWorld = data.localWorld;
                         this.player.x = data.player.x;
                         this.player.y = data.player.y;
                         this.player.lifePoints = data.player.lifePoints;
                         this.player.xp = data.player.xp;
-                        this.localWorld = data.localWorld;
                     }
                 )
             }
         );
 
-        this.player.socket.on("RoundEnded", () => {
+        this.player.socket.on("round-ended", () => {
             this.player.socket.close()
             this.stopUpdate = true
             var config = {
@@ -250,7 +285,12 @@ export default class GameScene extends Phaser.Scene {
             var i = 0;
             for (const row in this.gameScreen) {
                 for (const tile in this.gameScreen[row]) {
-                    this.gameScreen[row][tile].fillColor = this.colors(this.localWorld[i++])
+                    this.gameScreen[row][tile].rect.fillColor = this.colors(this.localWorld[i].lifePoints)
+                    if (this.localWorld[i++].player > 0 && (row != "middle" || tile != "middle")) {
+                        this.gameScreen[row][tile].enemy.visible = true;
+                    } else {
+                        this.gameScreen[row][tile].enemy.visible = false;
+                    }
                 }
             }
         }

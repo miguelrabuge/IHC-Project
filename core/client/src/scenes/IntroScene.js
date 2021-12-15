@@ -24,7 +24,7 @@ export default class IntroScene extends Phaser.Scene {
             this.socket.on('connect', () => {
                 console.log("Connected to Server on : " + "http://" + CTTS.SERVER.IP + ":" + CTTS.SERVER.PORT)
                 // Get player initial (randomized) information
-                this.socket.emit("InitializeInfo", (data) => {
+                this.socket.emit("initialize-info", (data) => {
                     // Create the Player
                     this.player = new Player(data.player.x, data.player.y, data.player.lifePoints, data.player.xp, this.socket);
                     // Switch to GameScene

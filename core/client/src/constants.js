@@ -17,6 +17,7 @@ export const CTTS = {
         SAVE: 'save',
         XP: 'XP',
         PLAYER: 'player',
+        ENEMY: 'enemy',
         ANIMATION: {
             SCALE : (obj, scale) => {obj.setScale(scale)}
         }
