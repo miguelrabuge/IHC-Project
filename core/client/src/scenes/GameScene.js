@@ -5,6 +5,7 @@ import saveImg from '../assets/sprites/save.png'
 import sowImg from '../assets/sprites/sow.png'
 import heartImg from '../assets/sprites/heart.png';
 import xpImg from '../assets/sprites/XP.png'
+import encounterImg from '../assets/sprites/encounter.png';
 import playerStancesImg from '../assets/sprites/playersheet.png'
 import enemyStancesImg from '../assets/sprites/enemysheet.png'
 import { CTTS } from "../constants";
@@ -24,10 +25,15 @@ export default class GameScene extends Phaser.Scene {
     init(data) {
         this.player = data.player;
         this.worldSize = data.worldSize;
-        this.localWorld = [{lifePoints: -1}, {lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1},{lifePoints: -1}];
+        this.localWorld = [
+            {lifePoints: -1, players: []}, {lifePoints: -1, players: []}, {lifePoints: -1, players: []},
+            {lifePoints: -1, players: []}, {lifePoints: -1, players: []}, {lifePoints: -1, players: []},
+            {lifePoints: -1, players: []}, {lifePoints: -1, players: []}, {lifePoints: -1, players: []}
+        ];
         this.maxCellLP = data.maxCellLP;
         this.nextMove = "None";
         this.stopUpdate = false
+        this.encounter = false;
     }
 
     preload() {
@@ -38,14 +44,15 @@ export default class GameScene extends Phaser.Scene {
         this.load.image(CTTS.SPRITES.SAVE, saveImg)
         this.load.image(CTTS.SPRITES.HEART, heartImg)
         this.load.image(CTTS.SPRITES.XP, xpImg)
+        this.load.image(CTTS.SPRITES.ENCOUNTER, encounterImg)
         this.load.spritesheet(CTTS.SPRITES.PLAYER, playerStancesImg, {
             frameHeight: 64,
             frameWidth: 64
-        })
+        });
         this.load.spritesheet(CTTS.SPRITES.ENEMY, enemyStancesImg, {
             frameHeight: 64,
             frameWidth: 64
-        })
+        });
 
         this.moveBtns = {
             up : {
@@ -155,7 +162,7 @@ export default class GameScene extends Phaser.Scene {
                 },
                 middle: {
                     rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, 128, 128, 0x00ff00),
-                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.ENEMY).setFrame(1)
+                    enemy: this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.ENCOUNTER).setDepth(30)
                 },
                 right: {
                     rect: this.add.rectangle(CTTS.CANVAS.WIDTH/2 + 128 + 1, CTTS.CANVAS.HEIGHT * 0.35, 128, 128,0xffff00),
@@ -177,13 +184,17 @@ export default class GameScene extends Phaser.Scene {
                 },
             }
         }
+        
+        this.gameScreen["middle"]["middle"].setDepth = 30;
         for (const row in this.gameScreen) {
             for (const tile in this.gameScreen[row]) {
                 this.gameScreen[row][tile].enemy.visible = false;
             }
         }
+        
         // Player Sprite
         this.playerSprite = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.PLAYER).setFrame(1);
+        
         
         /* Actions */ //FIXME:
         // this.add.sprite(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
@@ -245,7 +256,9 @@ export default class GameScene extends Phaser.Scene {
 
         this.player.socket.on("tick-update", () => {
                 this.player.socket.emit("get-tick-update", (data) => {
-                        this.localWorld = data.localWorld;
+                    this.encounter = data.player.encounter;
+                    this.localWorld = data.localWorld;
+                    console.log(this.localWorld)
                         this.player.x = data.player.x;
                         this.player.y = data.player.y;
                         this.player.lifePoints = data.player.lifePoints;
@@ -286,12 +299,21 @@ export default class GameScene extends Phaser.Scene {
             for (const row in this.gameScreen) {
                 for (const tile in this.gameScreen[row]) {
                     this.gameScreen[row][tile].rect.fillColor = this.colors(this.localWorld[i].lifePoints)
-                    if (this.localWorld[i++].player > 0 && (row != "middle" || tile != "middle")) {
-                        this.gameScreen[row][tile].enemy.visible = true;
-                    } else {
-                        this.gameScreen[row][tile].enemy.visible = false;
+                    if (row != "middle" || tile != "middle") {
+                        if (this.localWorld[i].players.length > 0) {
+                            this.gameScreen[row][tile].enemy.visible = true;
+                        } else {
+                            this.gameScreen[row][tile].enemy.visible = false;
+                        }
                     }
+                    i++;
                 }
+            }
+
+            if (this.encounter != false) {
+                this.gameScreen["middle"]["middle"].enemy.visible = true;
+            } else {
+                this.gameScreen["middle"]["middle"].enemy.visible = false;
             }
         }
     }

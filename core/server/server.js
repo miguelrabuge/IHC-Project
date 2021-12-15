@@ -22,21 +22,21 @@ class World {
     
     init() {
         for (var i = 0; i < this.worldSize; i++) {
-            world.map[i] = []
+            this.map[i] = []
             for (var j = 0; j < this.worldSize; j++) {
-                world.map[i][j] = this.getCell(0, 0);
+                this.map[i][j] = this.getCell(0, 0);
             }
         }
     }
 
     reset() {
-        world = { map: [] }
-        players = {}
-        n_playing = 0;
+        this.map = [];
+        this.players = {};
+        this.n_playing = 0;
     }
 
-    getCell(lifePoints, n_players) {
-        return {lifePoints: lifePoints, n_players: n_players}
+    getCell(lifePoints, players) {
+        return {lifePoints: lifePoints, players: players}
     }
     
     getLocal(x, y, seed) {
@@ -47,9 +47,9 @@ class World {
                     localWorld[pos] = this.getCell(-1, 0);
                 else {
                     if (seed) {
-                        world.map[y + v[i]][x + v[j]].lifePoints = (world.map[y + v[i]][x + v[j]].lifePoints == 0 ? 3 * LP : world.map[y + v[i]][x + v[j]].lifePoints);
+                        this.map[y + v[i]][x + v[j]].lifePoints = (this.map[y + v[i]][x + v[j]].lifePoints == 0 ? 3 * LP : this.map[y + v[i]][x + v[j]].lifePoints);
                     } 
-                    localWorld[pos] = world.map[y + v[i]][x + v[j]]
+                    localWorld[pos] = this.map[y + v[i]][x + v[j]]
                 }
                 pos++;
             }
@@ -60,14 +60,22 @@ class World {
     updatePositions() {
         for (var i = 0; i < this.worldSize; i++) {
             for (var j = 0; j < this.worldSize; j++) {
-                world.map[i][j].player = 0;
+                this.map[i][j].players = [];
             }
         }
     
         for (var id in this.players) {
             var x = this.players[id].x;
             var y = this.players[id].y;
-            world.map[y][x].player++;
+            this.map[y][x].players.push(id);
+            this.players[id].encounter = false;
+            if (this.map[y][x].players.length > 1) {
+                var player1 = this.map[y][x].players.pop();
+                var player2 = this.map[y][x].players.pop();
+
+                this.players[player1].encounter = player2;
+                this.players[player2].encounter = player1;
+            }
         }
     }
 
@@ -93,7 +101,8 @@ io.on('connection', (socket) => {
                 x: parseInt(WORLDSIZE * Math.random()),
                 y: parseInt(WORLDSIZE * Math.random()),
                 lifePoints: LP,
-                xp: 0
+                xp: 0,
+                encounter: false
             }
             world.n_playing++;
             info({

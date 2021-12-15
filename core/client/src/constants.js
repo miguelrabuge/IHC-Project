@@ -16,6 +16,7 @@ export const CTTS = {
         SOW: 'sow',
         SAVE: 'save',
         XP: 'XP',
+        ENCOUNTER: 'encounter',
         PLAYER: 'player',
         ENEMY: 'enemy',
         ANIMATION: {
