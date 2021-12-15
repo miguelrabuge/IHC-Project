@@ -202,23 +202,23 @@ export default class GameScene extends Phaser.Scene {
                 );
         }
         // Update server with player intentions every gametick
-        this.player.socket.on("gametick", (info) => {
-
-                this.player.socket.emit("clientInfo", 
-                {
-                    action: this.nextMove
-                }, 
-                (newData) => {
-                    this.player.x = newData.player.x;
-                    this.player.y = newData.player.y;
-                    this.player.lifePoints = newData.player.lifePoints;
-                    this.player.xp = newData.player.xp;
-                    this.localWorld = newData.localWorld;
-                }
-                );
+        this.player.socket.on("gametick", () => {
+                this.player.socket.emit("clientInfo", {action: this.nextMove});
                 this.nextMove = "None";
             }
-        )
+        );
+
+        this.player.socket.on("tickUpdate", () => {
+                this.player.socket.emit("getTickUpdate", (data) => {
+                        this.player.x = data.player.x;
+                        this.player.y = data.player.y;
+                        this.player.lifePoints = data.player.lifePoints;
+                        this.player.xp = data.player.xp;
+                        this.localWorld = data.localWorld;
+                    }
+                )
+            }
+        );
 
         this.player.socket.on("RoundEnded", () => {
             this.player.socket.close()
