@@ -8,6 +8,7 @@ export const CTTS = {
         PORT: "3000"
     },
     SPRITES: {
+        BACKGROUND: 'background',
         PLAYBUTTON: 'play',
         HEART: 'heart',
         SWORD: 'sword',
@@ -17,6 +18,10 @@ export const CTTS = {
         SAVE: 'save',
         XP: 'XP',
         ENCOUNTER: 'encounter',
+        FLEE: 'flee',
+        FIGHT: 'fight',
+        SHARE: 'share',
+        STEAL: 'steal',
         PLAYER: 'player',
         ENEMY: 'enemy',
         ANIMATION: {

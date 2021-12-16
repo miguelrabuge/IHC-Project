@@ -6,8 +6,13 @@ import sowImg from '../assets/sprites/sow.png'
 import heartImg from '../assets/sprites/heart.png';
 import xpImg from '../assets/sprites/XP.png'
 import encounterImg from '../assets/sprites/encounter.png';
+import fleeImg from '../assets/sprites/flee.png';
+import fightImg from '../assets/sprites/fight.png';
+import shareImg from '../assets/sprites/share.png';
+import stealImg from '../assets/sprites/steal.png';
 import playerStancesImg from '../assets/sprites/playersheet.png'
 import enemyStancesImg from '../assets/sprites/enemysheet.png'
+import backgroundImg from '../assets/sprites/background.png';
 import { CTTS } from "../constants";
 
 
@@ -49,6 +54,11 @@ export default class GameScene extends Phaser.Scene {
         this.load.image(CTTS.SPRITES.HEART, heartImg)
         this.load.image(CTTS.SPRITES.XP, xpImg)
         this.load.image(CTTS.SPRITES.ENCOUNTER, encounterImg)
+        this.load.image(CTTS.SPRITES.FLEE, fleeImg)
+        this.load.image(CTTS.SPRITES.FIGHT, fightImg)
+        this.load.image(CTTS.SPRITES.SHARE, shareImg)
+        this.load.image(CTTS.SPRITES.STEAL, stealImg)
+
         this.load.spritesheet(CTTS.SPRITES.PLAYER, playerStancesImg, {
             frameHeight: 64,
             frameWidth: 64
@@ -57,6 +67,7 @@ export default class GameScene extends Phaser.Scene {
             frameHeight: 64,
             frameWidth: 64
         });
+        this.load.image(CTTS.SPRITES.BACKGROUND, backgroundImg);
 
         this.moveBtns = {
             up : {
@@ -121,28 +132,28 @@ export default class GameScene extends Phaser.Scene {
             share: {
                 x: CTTS.CANVAS.WIDTH/2 - 32,
                 y: CTTS.CANVAS.HEIGHT* 0.75,
-                sprite: CTTS.SPRITES.SCYTHE,
+                sprite: CTTS.SPRITES.SHARE,
                 labelHandler: null,
                 spriteHandler: null
             },
             fight: {
                 x: CTTS.CANVAS.WIDTH / 2 + 32 + 16, 
                 y: CTTS.CANVAS.HEIGHT * 0.75,
-                sprite: CTTS.SPRITES.SCYTHE,
+                sprite: CTTS.SPRITES.FIGHT,
                 labelHandler: null,
                 spriteHandler: null
             },
             flee: {
                 x: CTTS.CANVAS.WIDTH / 2 + 32 + 16 + 64 + 16, 
                 y: CTTS.CANVAS.HEIGHT * 0.75,
-                sprite: CTTS.SPRITES.SCYTHE,
+                sprite: CTTS.SPRITES.FLEE,
                 labelHandler: null,
                 spriteHandler: null
             },
             steal: {
                 x: CTTS.CANVAS.WIDTH / 2 + 32 + 16 + 64 + 16 + 64 + 16,
                 y: CTTS.CANVAS.HEIGHT * 0.75,
-                sprite: CTTS.SPRITES.SCYTHE,
+                sprite: CTTS.SPRITES.STEAL,
                 labelHandler: null,
                 spriteHandler: null
             }
@@ -174,6 +185,8 @@ export default class GameScene extends Phaser.Scene {
     /* Phaser Create Method */
 
     create() {
+        /* Background Image */
+        //this.background = this.add.sprite(0,0,CTTS.SPRITES.BACKGROUND).setOrigin(0).setScale(2,2)
         /* Control Text */
         this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,CTTS.CANVAS.HEIGHT*0.65, "Next Action: None").setOrigin(0.5,0);
         //TODO: Remove this var
