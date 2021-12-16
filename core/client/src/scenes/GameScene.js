@@ -22,6 +22,8 @@ export default class GameScene extends Phaser.Scene {
         super(CTTS.SCENES.GAMESCENE.NAME)
     }
 
+    /* Phaser Init Method */
+    
     init(data) {
         this.player = data.player;
         this.worldSize = data.worldSize;
@@ -35,6 +37,8 @@ export default class GameScene extends Phaser.Scene {
         this.stopUpdate = true
         this.encounter = false;
     }
+
+    /* Phaser Preload Method */
 
     preload() {
         this.load.image(CTTS.SPRITES.SWORD, swordImg);
@@ -144,6 +148,18 @@ export default class GameScene extends Phaser.Scene {
             }
         }
     }
+    
+    /* Utility Methods */
+
+    activateComponent(component) {
+        component.alpha = 1;
+        component.setInteractive()
+    }
+
+    deactivateComponent(component) {
+        component.alpha = 0.5;
+        component.disableInteractive();
+    }
 
     colors(cell) { 
         var range = [0xffff00, 0xefff00, 0xdfff00, 0xcfff00, 0xbfff00, 0xafff00, 0x9fff00, 0x8fff00, 0x7fff00, 0x6fff00, 0x00ff00]
@@ -155,8 +171,9 @@ export default class GameScene extends Phaser.Scene {
         return range[(cellNormalized - cellNormalized % 10) / 10]
     }
 
+    /* Phaser Create Method */
+
     create() {
-        console.log("create")
         /* Control Text */
         this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,CTTS.CANVAS.HEIGHT*0.65, "Next Action: None").setOrigin(0.5,0);
         //TODO: Remove this var
@@ -225,29 +242,6 @@ export default class GameScene extends Phaser.Scene {
                 this.gameScreen[row][tile].enemy.visible = false;
             }
         }
-        
-        /* Actions */ //FIXME:
-        // this.add.sprite(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-        //     .setInteractive()
-        //     .on('pointerover', () => {this.moveText.setText("Next Action: Share")});
-        // this.add.text(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Share").setOrigin(0.5,0.5)
-
-        // this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-        //     .setInteractive()
-        //     .on('pointerover', () => {this.moveText.setText("Next Action: Fight")});
-        // this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Fight").setOrigin(0.5,0.5)
-
-        // this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-        //     .setInteractive()
-        //     .on('pointerover', () => {this.moveText.setText("Next Action: Flee")});
-        // this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Flee").setOrigin(0.5,0.5)
-
-        // this.add.sprite(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 + 64+16, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
-        //     .setInteractive()
-        //     .on('pointerover', () => {this.moveText.setText("Next Action: Steal")});
-        // this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 + 64+16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Steal").setOrigin(0.5,0.5)
-        
-
 
         /* Action Buttons */
         for (const action in this.actionBtns) {
@@ -377,15 +371,5 @@ export default class GameScene extends Phaser.Scene {
                 }
             }
         }
-    }
-        
-    activateComponent(component) {
-        component.alpha = 1;
-        component.setInteractive()
-    }
-
-    deactivateComponent(component) {
-        component.alpha = 0.5;
-        component.disableInteractive();
     }
  }
