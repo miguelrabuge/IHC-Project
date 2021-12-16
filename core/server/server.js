@@ -4,8 +4,8 @@ const http = require('http').createServer(server);
 const io = require('socket.io')(http);
 
 /* Configs */ 
-TICK_LIMIT = 1000
-GAMETICK = 20   
+TICK_LIMIT = 10000
+GAMETICK = 200 
 WORLDSIZE = 5
 LP = 1000
 MAX_PLAYERS = 30
@@ -16,6 +16,7 @@ class World {
         this.maxPlayers = maxPlayers;
         this.n_playing = 0;
         this.counted_players = 0;
+        this.secondToChoose = []
         this.players = {}
         this.map = [];
     }
@@ -34,6 +35,7 @@ class World {
         this.players = {};
         this.n_playing = 0;
         this.counted_players = 0;
+        this.secondToChoose = [];
     }
 
     getCell(lifePoints, players) {
@@ -89,6 +91,7 @@ world = new World(WORLDSIZE, MAX_PLAYERS);
 
 function tickUpdate() {
     world.counted_players = 0;
+    world.secondToChoose = [];
     world.updatePositions();
     io.emit("tick-update");
 }
@@ -135,6 +138,35 @@ io.on('connection', (socket) => {
                     } else if (data.action == "save") {
                         world.players[socket.id].lifePoints = parseInt(world.players[socket.id].lifePoints * 0.5);
                         world.players[socket.id].xp += world.players[socket.id].lifePoints
+                    }
+                } else if (!world.secondToChoose.includes(socket.id)){
+                    world.secondToChoose.push(data.encounter)
+                    if (data.action == "flee") {
+                        var px = world.players[socket.id].x;
+                        var py = world.players[socket.id].y;
+                        
+                        var vx = [-1, 0, 1];
+                        var vy = [-1, 0, 1];
+                        if (px == WORLDSIZE - 1)
+                            vx.splice(2, 1);
+                        else if (px == 0)
+                            vx.splice(0, 1);
+                        
+                        if (py == WORLDSIZE - 1)
+                            vy.splice(2, 1);
+                        else if (py == 0)
+                            vy.splice(0, 1);
+                        
+                        var combinations = [];
+                        for (const i in vx) {
+                            for (const j in vy) {
+                                if (!(vx[i] == 0 && vy[j] == 0))
+                                    combinations.push([vx[i], vy[j]])
+                            }
+                        }
+                        var idx = Math.round(Math.random() * (combinations.length - 1))
+                        world.players[socket.id].x += combinations[idx][0]
+                        world.players[socket.id].y += combinations[idx][1]
                     }
                 }
                     
