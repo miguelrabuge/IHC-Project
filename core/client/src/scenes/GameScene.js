@@ -324,12 +324,6 @@ export default class GameScene extends Phaser.Scene {
             this.lpText.setText(this.player.lifePoints);
             this.xpText.setText(this.player.xp)
             
-            // Activate / Deactivate Arrows
-            this.player.x == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["right"].handle) : this.activateComponent(this.moveBtns["right"].handle);
-            this.player.y == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["down"].handle) : this.activateComponent(this.moveBtns["down"].handle);
-            this.player.x == 0 ? this.deactivateComponent(this.moveBtns["left"].handle) : this.activateComponent(this.moveBtns["left"].handle);
-            this.player.y == 0 ? this.deactivateComponent(this.moveBtns["up"].handle) : this.activateComponent(this.moveBtns["up"].handle);
-            
             // Updating Game Screen tiles
             var i = 0;
             for (const row in this.gameScreen) {
@@ -366,9 +360,12 @@ export default class GameScene extends Phaser.Scene {
                 for (const i in this.basicActions) {
                     this.activateComponent(this.actionBtns[this.basicActions[i]].spriteHandler);
                 }
-                for(const move in this.moveBtns) {
-                    this.activateComponent(this.moveBtns[move].handle)
-                }
+
+                // Activate / Deactivate Arrows
+                this.player.x == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["right"].handle) : this.activateComponent(this.moveBtns["right"].handle);
+                this.player.y == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["down"].handle) : this.activateComponent(this.moveBtns["down"].handle);
+                this.player.x == 0 ? this.deactivateComponent(this.moveBtns["left"].handle) : this.activateComponent(this.moveBtns["left"].handle);
+                this.player.y == 0 ? this.deactivateComponent(this.moveBtns["up"].handle) : this.activateComponent(this.moveBtns["up"].handle);
             }
         }
     }

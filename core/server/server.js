@@ -139,7 +139,7 @@ io.on('connection', (socket) => {
                         world.players[socket.id].lifePoints = parseInt(world.players[socket.id].lifePoints * 0.5);
                         world.players[socket.id].xp += world.players[socket.id].lifePoints
                     }
-                } else if (!world.secondToChoose.includes(socket.id)){
+                } else if (data.action != "None" && !world.secondToChoose.includes(socket.id)){
                     world.secondToChoose.push(data.encounter)
                     if (data.action == "flee") {
                         var px = world.players[socket.id].x;
