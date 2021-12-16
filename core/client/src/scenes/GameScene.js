@@ -32,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
         ];
         this.maxCellLP = data.maxCellLP;
         this.nextMove = "None";
-        this.stopUpdate = false
+        this.stopUpdate = true
         this.encounter = false;
     }
 
@@ -89,25 +89,56 @@ export default class GameScene extends Phaser.Scene {
             }
         }
 
+        this.basicActions = ["harvest", "sow", "save"];
+        this.encounterActions = ["share", "fight", "flee", "steal"];
+
         this.actionBtns = {
             harvest: {
-                x: CTTS.CANVAS.WIDTH/2 - 32 +64 +16,
-                y: CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16,
+                x: CTTS.CANVAS.WIDTH / 2 - 32 + 64 + 16,
+                y: CTTS.CANVAS.HEIGHT * 0.75 + 64 + 16 + 16,
                 sprite: CTTS.SPRITES.SCYTHE,
                 labelHandler: null,
                 spriteHandler: null
             },
             sow: {
-                x: CTTS.CANVAS.WIDTH/2 + 32 + 16 +64 +16, 
-                y: CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16,
+                x: CTTS.CANVAS.WIDTH / 2 + 32 + 16 + 64 + 16, 
+                y: CTTS.CANVAS.HEIGHT * 0.75 + 64 + 16 + 16,
                 sprite: CTTS.SPRITES.SOW,
                 labelHandler: null,
                 spriteHandler: null
             },
             save: {
-                x: CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 +64 +16, 
-                y: CTTS.CANVAS.HEIGHT* 0.75 + 64 + 16 + 16,
+                x: CTTS.CANVAS.WIDTH / 2 + 32 + 16 + 64 + 16 + 64 + 16, 
+                y: CTTS.CANVAS.HEIGHT * 0.75 + 64 + 16 + 16,
                 sprite: CTTS.SPRITES.SAVE,
+                labelHandler: null,
+                spriteHandler: null
+            },
+            share: {
+                x: CTTS.CANVAS.WIDTH/2 - 32,
+                y: CTTS.CANVAS.HEIGHT* 0.75,
+                sprite: CTTS.SPRITES.SCYTHE,
+                labelHandler: null,
+                spriteHandler: null
+            },
+            fight: {
+                x: CTTS.CANVAS.WIDTH / 2 + 32 + 16, 
+                y: CTTS.CANVAS.HEIGHT * 0.75,
+                sprite: CTTS.SPRITES.SCYTHE,
+                labelHandler: null,
+                spriteHandler: null
+            },
+            flee: {
+                x: CTTS.CANVAS.WIDTH / 2 + 32 + 16 + 64 + 16, 
+                y: CTTS.CANVAS.HEIGHT * 0.75,
+                sprite: CTTS.SPRITES.SCYTHE,
+                labelHandler: null,
+                spriteHandler: null
+            },
+            steal: {
+                x: CTTS.CANVAS.WIDTH / 2 + 32 + 16 + 64 + 16 + 64 + 16,
+                y: CTTS.CANVAS.HEIGHT * 0.75,
+                sprite: CTTS.SPRITES.SCYTHE,
                 labelHandler: null,
                 spriteHandler: null
             }
@@ -125,21 +156,24 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
-        // Control Text
+        console.log("create")
+        /* Control Text */
         this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,CTTS.CANVAS.HEIGHT*0.65, "Next Action: None").setOrigin(0.5,0);
         //TODO: Remove this var
         this.local = this.add.text(CTTS.CANVAS.WIDTH - 20*6, CTTS.CANVAS.HEIGHT*0.65, `(${this.player.x}, ${this.player.y})`).setOrigin(0.5,0);
         
-        // Lifepoints Sprite and Label
+        /* Lifepoints Sprite and Label */
         this.lpSprite = this.add.sprite(CTTS.CANVAS.WIDTH*0.2,5, CTTS.SPRITES.HEART).setOrigin(0,0).setScale(0.5);
         this.lpText = this.add.text(CTTS.CANVAS.WIDTH*0.2 + 40,13,this.player.lifePoints, {color: "#00ff00"});
 
-        // XP Sprite and Label
+        /* XP Sprite and Label */
         this.xpSprite = this.add.sprite(CTTS.CANVAS.WIDTH*0.6, 5, CTTS.SPRITES.XP).setOrigin(0,0).setScale(0.5);
         this.xpText = this.add.text(CTTS.CANVAS.WIDTH*0.6 + 40, 13, this.player.xp, {color: "#5fA0ff"})
-
         
-        // GameScreen
+        /* Player Sprite */
+        this.playerSprite = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.PLAYER).setFrame(1).setDepth(29);
+        
+        /* GameScreen */
         this.gameScreen = {
             top: {
                 left: {
@@ -184,17 +218,13 @@ export default class GameScene extends Phaser.Scene {
                 },
             }
         }
-        
-        this.gameScreen["middle"]["middle"].setDepth = 30;
+
+        // Set "Enemies" and Encounter Pop-up Invisible
         for (const row in this.gameScreen) {
             for (const tile in this.gameScreen[row]) {
                 this.gameScreen[row][tile].enemy.visible = false;
             }
         }
-        
-        // Player Sprite
-        this.playerSprite = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.PLAYER).setFrame(1);
-        
         
         /* Actions */ //FIXME:
         // this.add.sprite(CTTS.CANVAS.WIDTH/2 - 32, CTTS.CANVAS.HEIGHT* 0.75, CTTS.SPRITES.SWORD)
@@ -217,6 +247,8 @@ export default class GameScene extends Phaser.Scene {
         //     .on('pointerover', () => {this.moveText.setText("Next Action: Steal")});
         // this.add.text(CTTS.CANVAS.WIDTH/2 + 32 + 16 + 64 + 16 + 64+16, CTTS.CANVAS.HEIGHT* 0.75 + 48 , "Steal").setOrigin(0.5,0.5)
         
+
+
         /* Action Buttons */
         for (const action in this.actionBtns) {
             this.actionBtns[action].labelHandler = this.add.text(this.actionBtns[action].x,this.actionBtns[action].y + 48, action.charAt(0).toUpperCase() + action.slice(1))
@@ -230,6 +262,10 @@ export default class GameScene extends Phaser.Scene {
                 .on('pointerout', () => {
                     this.actionBtns[action].spriteHandler.setScale(1)
                 })
+
+            if (this.encounterActions.includes(action)) {
+                this.deactivateComponent(this.actionBtns[action].spriteHandler)
+            }
         }
 
         /* Move Buttons */
@@ -247,18 +283,22 @@ export default class GameScene extends Phaser.Scene {
                     }
                 );
         }
-        // Update server with player intentions every gametick
+
+        /* Server Communication */
+
+        // On gametick, send selected Action
         this.player.socket.on("gametick", () => {
-                this.player.socket.emit("client-info", {action: this.nextMove});
+                this.player.socket.emit("client-info", {action: this.nextMove, encounter: this.encounter});
                 this.nextMove = "None";
             }
         );
-
+        
+        // After processing all clients, server sends the "tick-update" event, which makes all the clients get the tick information
+        // through the "get-tick-update" event callback.
         this.player.socket.on("tick-update", () => {
                 this.player.socket.emit("get-tick-update", (data) => {
-                    this.encounter = data.player.encounter;
-                    this.localWorld = data.localWorld;
-                    console.log(this.localWorld)
+                        this.encounter = data.player.encounter;
+                        this.localWorld = data.localWorld;
                         this.player.x = data.player.x;
                         this.player.y = data.player.y;
                         this.player.lifePoints = data.player.lifePoints;
@@ -267,7 +307,8 @@ export default class GameScene extends Phaser.Scene {
                 )
             }
         );
-
+        
+        // When a round ends, the server sends the "round-ended" event, that makes the client disconnect and transition to the ScoreScene
         this.player.socket.on("round-ended", () => {
             this.player.socket.close()
             this.stopUpdate = true
@@ -278,6 +319,7 @@ export default class GameScene extends Phaser.Scene {
             };
             this.scene.transition(config);
         })
+        this.stopUpdate = false;
     }
 
     update() { 
@@ -288,7 +330,7 @@ export default class GameScene extends Phaser.Scene {
             this.lpText.setText(this.player.lifePoints);
             this.xpText.setText(this.player.xp)
             
-            // Activate/Deactivate Arrows
+            // Activate / Deactivate Arrows
             this.player.x == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["right"].handle) : this.activateComponent(this.moveBtns["right"].handle);
             this.player.y == this.worldSize - 1 ? this.deactivateComponent(this.moveBtns["down"].handle) : this.activateComponent(this.moveBtns["down"].handle);
             this.player.x == 0 ? this.deactivateComponent(this.moveBtns["left"].handle) : this.activateComponent(this.moveBtns["left"].handle);
@@ -310,10 +352,29 @@ export default class GameScene extends Phaser.Scene {
                 }
             }
 
+            // Update Encounter related Components
             if (this.encounter != false) {
                 this.gameScreen["middle"]["middle"].enemy.visible = true;
+                for (const i in this.encounterActions) {
+                    this.activateComponent(this.actionBtns[this.encounterActions[i]].spriteHandler);
+                }
+                for (const i in this.basicActions) {
+                    this.deactivateComponent(this.actionBtns[this.basicActions[i]].spriteHandler);
+                }
+                for(const move in this.moveBtns) {
+                    this.deactivateComponent(this.moveBtns[move].handle)
+                }
             } else {
                 this.gameScreen["middle"]["middle"].enemy.visible = false;
+                for (const i in this.encounterActions) {
+                    this.deactivateComponent(this.actionBtns[this.encounterActions[i]].spriteHandler);
+                }
+                for (const i in this.basicActions) {
+                    this.activateComponent(this.actionBtns[this.basicActions[i]].spriteHandler);
+                }
+                for(const move in this.moveBtns) {
+                    this.activateComponent(this.moveBtns[move].handle)
+                }
             }
         }
     }

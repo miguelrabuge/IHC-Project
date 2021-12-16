@@ -4,8 +4,8 @@ const http = require('http').createServer(server);
 const io = require('socket.io')(http);
 
 /* Configs */ 
-TICK_LIMIT = 10000
-GAMETICK = 200
+TICK_LIMIT = 1000
+GAMETICK = 20   
 WORLDSIZE = 5
 LP = 1000
 MAX_PLAYERS = 30
@@ -33,6 +33,7 @@ class World {
         this.map = [];
         this.players = {};
         this.n_playing = 0;
+        this.counted_players = 0;
     }
 
     getCell(lifePoints, players) {
@@ -114,27 +115,29 @@ io.on('connection', (socket) => {
     );
 
     socket.on("client-info", (data) => {
-            world.counted_players++;
-            if (!rebooting) {
+        world.counted_players++;
+        if (!rebooting) {
                 world.players[socket.id].action = data.action;
-                if (data.action == "sow") {
-                    world.players[socket.id].lifePoints -= parseInt(LP * 0.33);
-                } else if (data.action == "up") {
-                    world.players[socket.id].y = Math.max(0, world.players[socket.id].y - 1);
-                } else if (data.action == "down") {
-                    world.players[socket.id].y = Math.min(WORLDSIZE - 1, world.players[socket.id].y + 1);
-                } else if (data.action == "left") {
-                    world.players[socket.id].x = Math.max(0, world.players[socket.id].x - 1);
-                } else if (data.action == "right") {
-                    world.players[socket.id].x = Math.min(WORLDSIZE - 1, world.players[socket.id].x + 1);
-                } else if (data.action == "harvest") {
-                    world.players[socket.id].lifePoints += world.map[world.players[socket.id].y][world.players[socket.id].x].lifePoints;
-                    world.map[world.players[socket.id].y][world.players[socket.id].x].lifePoints = 0 
-                } else if (data.action == "save") {
-                    world.players[socket.id].lifePoints = parseInt(world.players[socket.id].lifePoints * 0.5);
-                    world.players[socket.id].xp += world.players[socket.id].lifePoints
+                if (!data.encounter) { // server protection for encounter + basic action
+                    if (data.action == "sow") {
+                        world.players[socket.id].lifePoints -= parseInt(LP * 0.33);
+                    } else if (data.action == "up") {
+                        world.players[socket.id].y = Math.max(0, world.players[socket.id].y - 1);
+                    } else if (data.action == "down") {
+                        world.players[socket.id].y = Math.min(WORLDSIZE - 1, world.players[socket.id].y + 1);
+                    } else if (data.action == "left") {
+                        world.players[socket.id].x = Math.max(0, world.players[socket.id].x - 1);
+                    } else if (data.action == "right") {
+                        world.players[socket.id].x = Math.min(WORLDSIZE - 1, world.players[socket.id].x + 1);
+                    } else if (data.action == "harvest") {
+                        world.players[socket.id].lifePoints += world.map[world.players[socket.id].y][world.players[socket.id].x].lifePoints;
+                        world.map[world.players[socket.id].y][world.players[socket.id].x].lifePoints = 0 
+                    } else if (data.action == "save") {
+                        world.players[socket.id].lifePoints = parseInt(world.players[socket.id].lifePoints * 0.5);
+                        world.players[socket.id].xp += world.players[socket.id].lifePoints
+                    }
                 }
-                
+                    
                 // Update Players
                 world.players[socket.id].lifePoints -= LP * 0.01;
 
@@ -153,7 +156,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on("disconnect", () => {
-            if (world.counted_players == --world.n_playing) {
+            if (!rebooting && (world.counted_players == --world.n_playing)) {
                 tickUpdate();
             }
             delete world.players[socket.id];
