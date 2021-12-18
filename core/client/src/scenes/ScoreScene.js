@@ -4,7 +4,7 @@ import { CTTS } from "../constants";
 
 export default class ScoreScene extends Phaser.Scene {
     constructor () {
-        super("ScoreScene");
+        super(CTTS.SCENES.SCORESCENE.NAME);
     }
     
     preload() {

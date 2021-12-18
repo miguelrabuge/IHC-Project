@@ -29,39 +29,60 @@ export default class IntroScene extends Phaser.Scene {
         this.title = this.add.text(CTTS.CANVAS.WIDTH / 2, CTTS.CANVAS.HEIGHT * 0.25, "EngageX", {strokeThickness: 3, color: "#ffffff", fontSize: 70, backgroundColor: "#823f05"} ).setOrigin(0.5,0.5)
 
         // Play Button
-        this.playBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2, CTTS.SPRITES.PLAYBUTTON).setInteractive()
-        // How to Play Button
-        this.howtoPlayBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2 + 128, CTTS.SPRITES.HOWTOPLAYBUTTON).setInteractive()
-        // Settings Button
-        this.settingsBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2 + 128 * 2, CTTS.SPRITES.SETTINGSBUTTON).setInteractive()
-        // Event: On Play Button Click
-        this.playBtn.on('pointerover', () => {
-            this.playBtn.setScale(0.94)
-            // Create Websocket
-            this.socket = io('http://' + CTTS.SERVER.IP + ':' + CTTS.SERVER.PORT, { transports : ['websocket'] });
-            // Connect to Server
-            this.socket.on('connect', () => {
-                console.log("Connected to Server on : " + "http://" + CTTS.SERVER.IP + ":" + CTTS.SERVER.PORT)
-                // Get player initial (randomized) information
-                this.socket.emit("initialize-info", (data) => {
-                    // Create the Player
-                    this.player = new Player(data.player.x, data.player.y, data.player.lifePoints, data.player.xp, this.socket);
-                    // Switch to GameScene
-                    var config = {
-                        target: CTTS.SCENES.GAMESCENE.NAME,
-                        duration: 0,
-                        onUpdate: (progress) => CTTS.SCENES.TRANSITION.ANIMATION.FADE(progress, this.playBtn),
-                        data: {
-                            player: this.player, 
-                            worldSize: data.worldSize,
-                            maxCellLP: data.maxCellLP
-                        },
-                        moveBelow: true,
-                    };
-                    this.scene.transition(config);
+        this.playBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2, CTTS.SPRITES.PLAYBUTTON)
+            .setInteractive()
+            .on('pointerover', () => {
+                this.playBtn.setScale(0.94)
+                // Create Websocket
+                this.socket = io('http://' + CTTS.SERVER.IP + ':' + CTTS.SERVER.PORT, { transports : ['websocket'] });
+                // Connect to Server
+                this.socket.on('connect', () => {
+                    console.log("Connected to Server on : " + "http://" + CTTS.SERVER.IP + ":" + CTTS.SERVER.PORT)
+                    // Get player initial (randomized) information
+                    this.socket.emit("initialize-info", (data) => {
+                        // Create the Player
+                        this.player = new Player(data.player.x, data.player.y, data.player.lifePoints, data.player.xp, this.socket);
+                        // Switch to GameScene
+                        var config = {
+                            target: CTTS.SCENES.GAMESCENE.NAME,
+                            duration: 0,
+                            onUpdate: (progress) => CTTS.SCENES.TRANSITION.ANIMATION.FADE(progress, this.playBtn),
+                            data: {
+                                player: this.player, 
+                                worldSize: data.worldSize,
+                                maxCellLP: data.maxCellLP
+                            },
+                            moveBelow: true,
+                        };
+                        this.scene.transition(config);
+                    });
                 });
-            });
-        }
+            }
         );
+
+        // How to Play Button
+        this.howToPlayBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2 + 128, CTTS.SPRITES.HOWTOPLAYBUTTON)
+            .setInteractive()
+            .on("pointerover", () => {
+                this.howToPlayBtn.setScale(0.94)
+                var config = {
+                    target: CTTS.SCENES.HOWTOPLAYSCENE.NAME,
+                    duration: 0,
+                    moveBelow: true,
+                };
+                this.scene.transition(config);
+            })
+        // Settings Button
+        this.settingsBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2 + 128 * 2, CTTS.SPRITES.SETTINGSBUTTON)
+            .setInteractive()
+            .on("pointerover", () => {
+                this.settingsBtn.setScale(0.94)
+                var config = {
+                    target: CTTS.SCENES.SETTINGSSCENE.NAME,
+                    duration: 0,
+                    moveBelow: true,
+                };
+                this.scene.transition(config);
+            })
     }
 }

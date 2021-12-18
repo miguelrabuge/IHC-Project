@@ -4,15 +4,17 @@ export const CTTS = {
         HEIGHT: 128*6
     },
     SERVER: {
-        IP: "localhost",
+        IP: "192.168.1.9",
         PORT: "3000"
     },
     SPRITES: {
         PLAYBUTTON: 'play-button',
         HOWTOPLAYBUTTON: 'how-to-play-button',
         SETTINGSBUTTON: 'settings-button',
+        MAINMENUBUTTON: 'main-menu-button',
         CLOCK: 'clock',
         BOX: 'box',
+        MENUBACKGROUND: "menu-background",
         BACKGROUND: 'background',
         HEART: 'heart',
         SWORD: 'sword',
@@ -61,6 +63,16 @@ export const CTTS = {
                 WIDTH: 128*3,
                 HEIGHT: 128*3
             }
+        },
+        SCORESCENE: {
+            NAME: "ScoreScene"
+        },
+        HOWTOPLAYSCENE: {
+            NAME: "HowToPlayScene",
+            TEXT: ""
+        },
+        SETTINGSSCENE: {
+            NAME: "SettingsScene",
         }
     }
 };
