@@ -1,3 +1,5 @@
+const { randomInt } = require('crypto');
+
 /* Server Requirements */
 const server = require('express')();
 const http = require('http').createServer(server);
@@ -164,14 +166,23 @@ io.on('connection', (socket) => {
                                     combinations.push([vx[i], vy[j]])
                             }
                         }
-                        var idx = Math.round(Math.random() * (combinations.length - 1))
-                        world.players[socket.id].x += combinations[idx][0]
-                        world.players[socket.id].y += combinations[idx][1]
+                        var idx = Math.round(Math.random() * (combinations.length - 1));
+                        // Move to Cell
+                        world.players[socket.id].x += combinations[idx][0];
+                        world.players[socket.id].y += combinations[idx][1];
+                        
+                        // Lose Life
+                        var lostLife = Math.round(world.players[socket.id].lifePoints * 0.25);
+                        world.players[socket.id].lifePoints -= lostLife;
+                        
+                        // Oponent Finds life with 20% probability
+                        if (Math.random() <= 0.2)
+                            world.players[data.encounter].lifePoints += lostLife;
                     }
                 }
                     
                 // Update Players
-                world.players[socket.id].lifePoints -= LP * 0.01;
+                //world.players[socket.id].lifePoints -= LP * 0.01;
 
                 if (world.counted_players == world.n_playing) {
                     tickUpdate();
