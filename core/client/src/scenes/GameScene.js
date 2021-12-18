@@ -16,6 +16,7 @@ import backgroundImg from '../assets/sprites/background.png';
 import { CTTS } from "../constants";
 
 import boxImg from '../assets/sprites/infobox.png';
+import clockImg from '../assets/sprites/clock.png';
 
 export default class GameScene extends Phaser.Scene {
     player;
@@ -42,6 +43,7 @@ export default class GameScene extends Phaser.Scene {
         this.nextMove = "None";
         this.stopUpdate = true
         this.encounter = false;
+        this.time = 0;
     }
 
     /* Phaser Preload Method */
@@ -70,6 +72,7 @@ export default class GameScene extends Phaser.Scene {
         });
         this.load.image(CTTS.SPRITES.BACKGROUND, backgroundImg);
         this.load.image(CTTS.SPRITES.BOX, boxImg);
+        this.load.image(CTTS.SPRITES.CLOCK, clockImg);
 
         this.moveBtns = {
             up : {
@@ -191,9 +194,9 @@ export default class GameScene extends Phaser.Scene {
         this.background = this.add.sprite(0,0,CTTS.SPRITES.BACKGROUND).setOrigin(0).setScale(2,2)
         this.blackboard = this.add.rectangle(CTTS.CANVAS.WIDTH / 2, CTTS.CANVAS.HEIGHT * 0.35, 128 * 3 + 4, 128 * 3 + 4, 0x000000),
         /* Control Text */
-        this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,CTTS.CANVAS.HEIGHT*0.65, "Next Action: None").setOrigin(0.5,0);
-        //TODO: Remove this var
-        this.local = this.add.text(CTTS.CANVAS.WIDTH - 20*6, CTTS.CANVAS.HEIGHT*0.65, `(${this.player.x}, ${this.player.y})`).setOrigin(0.5,0);
+        //TODO: Remove this vars
+        this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,CTTS.CANVAS.HEIGHT*0.95, "Next Action: None").setOrigin(0.5,0);
+        this.local = this.add.text(CTTS.CANVAS.WIDTH - 20*6, CTTS.CANVAS.HEIGHT*0.95, `(${this.player.x}, ${this.player.y})`).setOrigin(0.5,0);
         
         /* Lifepoints Sprite and Label */
         this.lifebox = this.add.sprite(CTTS.CANVAS.WIDTH*0.17 - 3,7,CTTS.SPRITES.BOX).setOrigin(0,0).setScale(0.6)
@@ -205,6 +208,10 @@ export default class GameScene extends Phaser.Scene {
         this.xpSprite = this.add.sprite(CTTS.CANVAS.WIDTH * 0.6, 13, CTTS.SPRITES.XP).setOrigin(0,0).setScale(0.5);
         this.xpText = this.add.text(CTTS.CANVAS.WIDTH*0.6 + 40, 21, this.player.xp, {color: "#009dcf"})
         
+        /* Time Sprite and Label */
+        this.clockbox = this.add.sprite(CTTS.CANVAS.WIDTH*0.35 - 3, CTTS.CANVAS.HEIGHT * 0.62,CTTS.SPRITES.BOX).setOrigin(0,0).setScale(0.6)
+        this.clockSprite = this.add.sprite(CTTS.CANVAS.WIDTH * 0.38, CTTS.CANVAS.HEIGHT * 0.62 + 6, CTTS.SPRITES.CLOCK).setOrigin(0,0).setScale(0.5);
+        this.clockText = this.add.text(CTTS.CANVAS.WIDTH * 0.38 + 40, CTTS.CANVAS.HEIGHT * 0.62 + 14, this.time, {color: "#000000"})
         /* Player Sprite */
         this.playerSprite = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.PLAYER).setFrame(1).setDepth(29);
         
@@ -315,6 +322,7 @@ export default class GameScene extends Phaser.Scene {
                         this.player.y = data.player.y;
                         this.player.lifePoints = data.player.lifePoints;
                         this.player.xp = data.player.xp;
+                        this.time = data.time;
                     }
                 )
             }
@@ -341,6 +349,7 @@ export default class GameScene extends Phaser.Scene {
             this.moveText.setText("Next Action: " + this.nextMove);
             this.lpText.setText(this.player.lifePoints);
             this.xpText.setText(this.player.xp)
+            this.clockText.setText(this.time)
             
             // Updating Game Screen tiles
             var i = 0;

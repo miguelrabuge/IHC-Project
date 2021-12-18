@@ -12,6 +12,8 @@ WORLDSIZE = 5
 LP = 1000
 MAX_PLAYERS = 30
 
+tickCounter = 0;
+
 class World {
     constructor(worldSize, maxPlayers) {
         this.worldSize = worldSize;
@@ -229,7 +231,8 @@ io.on('connection', (socket) => {
     socket.on("get-tick-update", (callback) => {
         callback({
             player: world.players[socket.id],
-            localWorld: world.getLocal(world.players[socket.id].x, world.players[socket.id].y, world.players[socket.id].action == "sow")
+            localWorld: world.getLocal(world.players[socket.id].x, world.players[socket.id].y, world.players[socket.id].action == "sow"),
+            time : TICK_LIMIT - tickCounter,
         })
     })
 
@@ -253,7 +256,7 @@ http.listen(3000, function () {
         console.log("Round [" + round + "] Started");
         world.init();
         rebooting = false;
-        var tickCounter = 0;
+        tickCounter = 0;
         var tickInterval = setInterval(() => {
             if (++tickCounter == TICK_LIMIT) {
                 rebooting = true;
