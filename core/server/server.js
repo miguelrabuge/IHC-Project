@@ -178,6 +178,7 @@ io.on('connection', (socket) => {
                         // Oponent Finds life with 20% probability
                         if (Math.random() <= 0.2)
                             world.players[data.encounter].lifePoints += lostLife;
+
                     } else if (data.action == "share") {
                         // Get half life from both players
                         var life1 = Math.round(world.players[socket.id].lifePoints / 2);
@@ -188,9 +189,30 @@ io.on('connection', (socket) => {
                         world.players[data.encounter].lifePoints += life1 - life2;
 
                     } else if (data.action == "fight") {
+                        // Get half life from both players
+                        var life1 = Math.round(world.players[socket.id].lifePoints / 2);
+                        var life2 = Math.round(world.players[data.encounter].lifePoints / 2);
 
+                        world.players[socket.id].lifePoints -= life1;
+                        world.players[data.encounter].lifePoints -= life2;
+                        
+                        // 50% of the Sum
+                        var halfTotal = Math.round((life1 + life2) / 2);
+                        
+                        // One wins 50% of the sum
+                        if (Math.random() <= 0.5)
+                            world.players[socket.id].lifePoints += halfTotal;
+                        else
+                            world.players[data.encounter].lifePoints += halfTotal;
+        
                     } else if (data.action == "steal") {
-
+                        if (Math.random() <= 0.25) {
+                            var life = Math.round(world.players[data.encounter].lifePoints * 0.25);
+                            world.players[socket.id].lifePoints += life;
+                            world.players[data.encounter].lifePoints -= life;
+                        } else {
+                            world.players[socket.id].lifePoints = 0;
+                        }
                     }
                 }
                     
