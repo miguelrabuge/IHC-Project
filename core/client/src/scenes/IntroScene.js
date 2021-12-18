@@ -1,7 +1,11 @@
 import io from "socket.io-client";
 
 import playSprite from '../assets/sprites/play.png';
-import Player  from "../util/Player";
+import howToPlaySprite from '../assets/sprites/howtoplay.png';
+import settingsSprite from '../assets/sprites/settings.png';
+import Player from "../util/Player";
+import backgroundImg from '../assets/sprites/background.png';
+import boxImg from '../assets/sprites/infobox.png';
 import { CTTS } from "../constants";
 
 export default class IntroScene extends Phaser.Scene {
@@ -11,13 +15,28 @@ export default class IntroScene extends Phaser.Scene {
 
     preload () {
         this.load.image(CTTS.SPRITES.PLAYBUTTON, playSprite);
+        this.load.image(CTTS.SPRITES.HOWTOPLAYBUTTON, howToPlaySprite);
+        this.load.image(CTTS.SPRITES.SETTINGSBUTTON, settingsSprite);
+        this.load.image(CTTS.SPRITES.BACKGROUND, backgroundImg);
+        this.load.image(CTTS.SPRITES.BOX, boxImg);
     }
       
     create () {
+        // Background
+        this.background = this.add.sprite(0,0,CTTS.SPRITES.BACKGROUND).setOrigin(0).setScale(2,2)
+
+        // EngageX Label
+        this.title = this.add.text(CTTS.CANVAS.WIDTH / 2, CTTS.CANVAS.HEIGHT * 0.25, "EngageX", {strokeThickness: 3, color: "#ffffff", fontSize: 70, backgroundColor: "#823f05"} ).setOrigin(0.5,0.5)
+
         // Play Button
         this.playBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2, CTTS.SPRITES.PLAYBUTTON).setInteractive()
+        // How to Play Button
+        this.howtoPlayBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2 + 128, CTTS.SPRITES.HOWTOPLAYBUTTON).setInteractive()
+        // Settings Button
+        this.settingsBtn = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT/2 + 128 * 2, CTTS.SPRITES.SETTINGSBUTTON).setInteractive()
         // Event: On Play Button Click
         this.playBtn.on('pointerover', () => {
+            this.playBtn.setScale(0.94)
             // Create Websocket
             this.socket = io('http://' + CTTS.SERVER.IP + ':' + CTTS.SERVER.PORT, { transports : ['websocket'] });
             // Connect to Server

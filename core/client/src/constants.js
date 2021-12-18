@@ -8,10 +8,12 @@ export const CTTS = {
         PORT: "3000"
     },
     SPRITES: {
+        PLAYBUTTON: 'play-button',
+        HOWTOPLAYBUTTON: 'how-to-play-button',
+        SETTINGSBUTTON: 'settings-button',
         CLOCK: 'clock',
         BOX: 'box',
         BACKGROUND: 'background',
-        PLAYBUTTON: 'play',
         HEART: 'heart',
         SWORD: 'sword',
         MOVE: 'move',
