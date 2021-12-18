@@ -15,6 +15,7 @@ import enemyStancesImg from '../assets/sprites/enemysheet.png'
 import backgroundImg from '../assets/sprites/background.png';
 import { CTTS } from "../constants";
 
+import boxImg from '../assets/sprites/infobox.png';
 
 export default class GameScene extends Phaser.Scene {
     player;
@@ -68,6 +69,7 @@ export default class GameScene extends Phaser.Scene {
             frameWidth: 64
         });
         this.load.image(CTTS.SPRITES.BACKGROUND, backgroundImg);
+        this.load.image(CTTS.SPRITES.BOX, boxImg);
 
         this.moveBtns = {
             up : {
@@ -186,19 +188,22 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
         /* Background Image */
-        //this.background = this.add.sprite(0,0,CTTS.SPRITES.BACKGROUND).setOrigin(0).setScale(2,2)
+        this.background = this.add.sprite(0,0,CTTS.SPRITES.BACKGROUND).setOrigin(0).setScale(2,2)
+        this.blackboard = this.add.rectangle(CTTS.CANVAS.WIDTH / 2, CTTS.CANVAS.HEIGHT * 0.35, 128 * 3 + 4, 128 * 3 + 4, 0x000000),
         /* Control Text */
         this.moveText = this.add.text(CTTS.CANVAS.WIDTH/2,CTTS.CANVAS.HEIGHT*0.65, "Next Action: None").setOrigin(0.5,0);
         //TODO: Remove this var
         this.local = this.add.text(CTTS.CANVAS.WIDTH - 20*6, CTTS.CANVAS.HEIGHT*0.65, `(${this.player.x}, ${this.player.y})`).setOrigin(0.5,0);
         
         /* Lifepoints Sprite and Label */
-        this.lpSprite = this.add.sprite(CTTS.CANVAS.WIDTH*0.2,5, CTTS.SPRITES.HEART).setOrigin(0,0).setScale(0.5);
-        this.lpText = this.add.text(CTTS.CANVAS.WIDTH*0.2 + 40,13,this.player.lifePoints, {color: "#00ff00"});
+        this.lifebox = this.add.sprite(CTTS.CANVAS.WIDTH*0.17 - 3,7,CTTS.SPRITES.BOX).setOrigin(0,0).setScale(0.6)
+        this.lpSprite = this.add.sprite(CTTS.CANVAS.WIDTH*0.2,13, CTTS.SPRITES.HEART).setOrigin(0,0).setScale(0.5);
+        this.lpText = this.add.text(CTTS.CANVAS.WIDTH*0.2 + 40,21,this.player.lifePoints, {color: "#006400"});
 
         /* XP Sprite and Label */
-        this.xpSprite = this.add.sprite(CTTS.CANVAS.WIDTH*0.6, 5, CTTS.SPRITES.XP).setOrigin(0,0).setScale(0.5);
-        this.xpText = this.add.text(CTTS.CANVAS.WIDTH*0.6 + 40, 13, this.player.xp, {color: "#5fA0ff"})
+        this.xpbox = this.add.sprite(CTTS.CANVAS.WIDTH*0.57 - 3, 7 ,CTTS.SPRITES.BOX).setOrigin(0,0).setScale(0.6)
+        this.xpSprite = this.add.sprite(CTTS.CANVAS.WIDTH * 0.6, 13, CTTS.SPRITES.XP).setOrigin(0,0).setScale(0.5);
+        this.xpText = this.add.text(CTTS.CANVAS.WIDTH*0.6 + 40, 21, this.player.xp, {color: "#009dcf"})
         
         /* Player Sprite */
         this.playerSprite = this.add.sprite(CTTS.CANVAS.WIDTH/2, CTTS.CANVAS.HEIGHT * 0.35, CTTS.SPRITES.PLAYER).setFrame(1).setDepth(29);

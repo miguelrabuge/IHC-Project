@@ -8,6 +8,7 @@ export const CTTS = {
         PORT: "3000"
     },
     SPRITES: {
+        BOX: 'box',
         BACKGROUND: 'background',
         PLAYBUTTON: 'play',
         HEART: 'heart',
