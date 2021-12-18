@@ -178,6 +178,19 @@ io.on('connection', (socket) => {
                         // Oponent Finds life with 20% probability
                         if (Math.random() <= 0.2)
                             world.players[data.encounter].lifePoints += lostLife;
+                    } else if (data.action == "share") {
+                        // Get half life from both players
+                        var life1 = Math.round(world.players[socket.id].lifePoints / 2);
+                        var life2 = Math.round(world.players[data.encounter].lifePoints / 2);
+
+                        // Update (share) players' lives
+                        world.players[socket.id].lifePoints += life2 - life1;
+                        world.players[data.encounter].lifePoints += life1 - life2;
+
+                    } else if (data.action == "fight") {
+
+                    } else if (data.action == "steal") {
+
                     }
                 }
                     
