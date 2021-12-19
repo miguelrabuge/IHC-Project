@@ -14,6 +14,7 @@ export const CTTS = {
         MAINMENUBUTTON: 'main-menu-button',
         CLOCK: 'clock',
         BOX: 'box',
+        BIGBOX: 'big-box',
         MENUBACKGROUND: "menu-background",
         BACKGROUND: 'background',
         HEART: 'heart',
