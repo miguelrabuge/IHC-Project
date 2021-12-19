@@ -6,7 +6,7 @@ const http = require('http').createServer(server);
 const io = require('socket.io')(http);
 
 /* Configs */ 
-TICK_LIMIT = 10000
+TICK_LIMIT = 3000
 GAMETICK = 200 
 WORLDSIZE = 5
 LP = 1000
@@ -98,6 +98,16 @@ function tickUpdate() {
     world.secondToChoose = [];
     world.updatePositions();
     io.emit("tick-update");
+}
+
+function bestXP() {
+    var best = 0;
+    for (var id in world.players) {
+        if (world.players[id].xp > best) {
+            best = world.players[id].xp;
+        }
+    }
+    return best
 }
 
 /* Server Events */
@@ -219,7 +229,7 @@ io.on('connection', (socket) => {
                 }
                     
                 // Update Players
-                //world.players[socket.id].lifePoints -= LP * 0.01;
+                world.players[socket.id].lifePoints -= LP * 0.01;
 
                 if (world.counted_players == world.n_playing) {
                     tickUpdate();
@@ -229,6 +239,9 @@ io.on('connection', (socket) => {
     )
 
     socket.on("get-tick-update", (callback) => {
+        if (world.players[socket.id].lifePoints <= 0) {
+            socket.emit("round-ended", {firstScore: bestXP(), zeroLife: true})
+        }
         callback({
             player: world.players[socket.id],
             localWorld: world.getLocal(world.players[socket.id].x, world.players[socket.id].y, world.players[socket.id].action == "sow"),
@@ -261,8 +274,9 @@ http.listen(3000, function () {
             if (++tickCounter == TICK_LIMIT) {
                 rebooting = true;
                 clearInterval(tickInterval);
+                var best = bestXP()
                 world.reset();
-                io.emit("round-ended")
+                io.emit("round-ended", {firstScore: best, zeroLife: false})
                 newRound = true
                 console.log("Round [" + round++ + "] Ended")
             } else {

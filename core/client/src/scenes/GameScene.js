@@ -329,12 +329,17 @@ export default class GameScene extends Phaser.Scene {
         );
         
         // When a round ends, the server sends the "round-ended" event, that makes the client disconnect and transition to the ScoreScene
-        this.player.socket.on("round-ended", () => {
+        this.player.socket.on("round-ended", (data) => {
             this.player.socket.close()
             this.stopUpdate = true
             var config = {
                 target: "ScoreScene",
                 duration: 0,
+                data: {
+                    myScore: this.player.xp,
+                    firstScore: data.firstScore,
+                    zeroLife: data.zeroLife
+                },
                 moveBelow: true,
             };
             this.scene.transition(config);
